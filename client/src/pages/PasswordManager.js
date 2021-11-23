@@ -1,15 +1,16 @@
 import { useEffect, useState } from 'react';
 import { FormControl, InputLabel, Input, Box, Button } from '@mui/material';
 
+import { PasswordCard } from '../components/PasswordCard';
+
 /**
- * @param {JSON} savedPasswords
+ * @param {number} id
+ * @param {[]]} passwords
  * @returns JSX
  */
-const PasswordManager = ({ savedPasswords }) => {
-  const [passwords, setNewPassword] = useState({
-    id: savedPasswords.id,
-    savedPasswords: savedPasswords.passwords,
-  });
+const PasswordManager = ({ id, passwords: dbPasswords }) => {
+  const [passwords, setNewPassword] = useState(dbPasswords);
+
   const [inputs, setInputs] = useState({
     title: '',
     password: '',
@@ -29,15 +30,15 @@ const PasswordManager = ({ savedPasswords }) => {
    *
    */
   useEffect(() => {
-    if (JSON.stringify(passwords) === JSON.stringify(savedPasswords)) {
+    if (JSON.stringify(passwords) === JSON.stringify(dbPasswords)) {
       return;
     }
-    onUpdatePassword();
+    onSaveNewPassword();
   }, [passwords]);
   /**
    *
    */
-  const onUpdatePassword = async () => {
+  const onSaveNewPassword = async () => {
     setIsUpdating(true);
     try {
       const response = await fetch('http://localhost:3001/savepassword', {
@@ -46,8 +47,8 @@ const PasswordManager = ({ savedPasswords }) => {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          id: passwords.id,
-          passwords: passwords.savedPasswords,
+          id,
+          passwords,
         }),
       });
 
@@ -66,18 +67,12 @@ const PasswordManager = ({ savedPasswords }) => {
   const onCreatePassword = async () => {
     const { title, password } = inputs;
 
-    if (!passwords.savedPasswords || !passwords.savedPasswords.length) {
-      setNewPassword({
-        id: passwords.id,
-        savedPasswords: [{ title, password }],
-      });
+    if (!passwords.length) {
+      setNewPassword([{ title, password }]);
       return;
     }
 
-    setNewPassword({
-      id: passwords.id,
-      savedPasswords: [...passwords.savedPasswords, { title, password }],
-    });
+    setNewPassword([...passwords, { title, password }]);
   };
 
   return (
@@ -127,14 +122,18 @@ const PasswordManager = ({ savedPasswords }) => {
           </Button>
         </div>
       </Box>
-      {passwords.savedPasswords.length > 0 && (
+      {passwords.length > 0 && (
         <ul>
-          {passwords.savedPasswords.map((password) => (
-            <li>
-              <p>
-                title: {password.title}
-                password: {password.password}
-              </p>
+          {passwords.map((password) => (
+            // TODO: check if title is unique to remove the Math.random();
+            <li
+              key={password.title + Math.random()}
+              style={{ display: 'inline' }}
+            >
+              <PasswordCard
+                title={password.title}
+                password={password.password}
+              />
             </li>
           ))}
         </ul>

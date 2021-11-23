@@ -102,16 +102,20 @@ const checkHasedPassword = (result, plainTextPassword, res) => {
      * lets just make it simple, and add a column to the users table
      * labeled saved passwords.
      */
-    res.send({
-      data: {
-        status: 'ok',
-        response: {
-          id: result[0].id, // this should get added automatically when creating a new user.
-          passwords:
-            result[0].saved_passwords === null ? [] : result[0].saved_passwords, // decode
+    res.send(
+      JSON.stringify({
+        data: {
+          status: 'ok',
+          response: {
+            id: result[0].id, // this should get added automatically when creating a new user.
+            passwords:
+              result[0].saved_passwords === null
+                ? '[]'
+                : result[0].saved_passwords, // decode
+          },
         },
-      },
-    });
+      }),
+    );
   });
 };
 /**
@@ -122,14 +126,10 @@ const checkHasedPassword = (result, plainTextPassword, res) => {
 app.put('/savepassword', (req, res) => {
   const { passwords, id } = req.body;
 
-  const hashedPasswordArray = passwords.map((password) => {
-    hash(password.password, (error, hashedPassword) => {
-      return { title, password: hashedPassword };
-    });
-  });
-
-  console.log('hashedPasswordArray', hashedPasswordArray);
-
+  /**
+   * TODO: its never save to store plaintext passwords
+   * this is just a placeholder for now.
+   */
   db.query(
     'UPDATE users SET saved_passwords = ? WHERE id = ?',
     [JSON.stringify(passwords), id],
@@ -140,10 +140,45 @@ app.put('/savepassword', (req, res) => {
       //   sendErrorResponse(error, res, 'There was a problem inserting data');
       //   return;
       // }
-      // res.send(JSON.stringify({ data: { status: 'ok' } }));
+      res.send(JSON.stringify({ data: { status: 'ok' } }));
     },
   );
+
+  // let hashedPasswordArray = [];
+
+  // passwords.forEach((password) => {
+  //   hash(password.password, (error, hashedPassword) => {
+  //     hashedPasswordArray.push({
+  //       title: password.title,
+  //       password: hashedPassword,
+  //     });
+  //     if (hashedPasswordArray.length === passwords.length) {
+  //       updateSavedPassword(hashedPasswordArray, id);
+  //     }
+  //   });
+  // });
 });
+/**
+ *
+ * @param {[]} hashedPasswordArray
+ * @param {id} number
+ */
+// const updateSavedPassword = (hashedPasswordArray, id) => {
+//   console.log('hashedPasswordArray outsidecallback', hashedPasswordArray);
+//   db.query(
+//     'UPDATE users SET saved_passwords = ? WHERE id = ?',
+//     [JSON.stringify(hashedPasswordArray), id],
+//     (error, result) => {
+//       console.log('error', error);
+//       console.log('result', result);
+//       // if (!error) {
+//       //   sendErrorResponse(error, res, 'There was a problem inserting data');
+//       //   return;
+//       // }
+//       // res.send(JSON.stringify({ data: { status: 'ok' } }));
+//     },
+//   );
+// };
 /**
  *
  * @param {{}} error

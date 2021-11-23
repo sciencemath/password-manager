@@ -1,5 +1,4 @@
 import { useState } from 'react';
-
 import {
   FormControl,
   InputLabel,
@@ -10,7 +9,7 @@ import {
   Button,
   Icon,
 } from '@mui/material';
-import { VisibilityOff, Visibility, Person } from '@mui/icons-material/';
+import { VisibilityOff, Visibility, Person, Lock } from '@mui/icons-material';
 
 import PasswordManager from './pages/PasswordManager';
 
@@ -30,7 +29,7 @@ function App() {
   const [isLoggedin, setIsLoggedin] = useState(false);
   const [savedPasswords, setSavedPasswords] = useState({
     id: 0,
-    passwords: null,
+    passwords: [],
   });
   /**
    *
@@ -98,6 +97,8 @@ function App() {
       });
       const { data } = await response.json();
 
+      console.log(JSON.parse(data.response.passwords));
+
       /**
        * TODO: set localstorage
        */
@@ -114,84 +115,103 @@ function App() {
   };
   return (
     <>
-      {!isLoggedin ? (
-        <Box
-          sx={{
-            display: 'flex',
-            flexWrap: 'wrap',
-            flexDirection: 'column',
-            justifyContent: 'center',
-            alignItems: 'center',
-          }}
-        >
-          <div>
-            <FormControl sx={{ m: 1, width: '25ch' }} variant="standard">
-              <InputLabel htmlFor="standard-adornment-username">
-                Username
-              </InputLabel>
-              <Input
-                id="standard-adornment-username"
-                type="text"
-                value={inputText.username}
-                name="username"
-                onChange={handleChange}
-                endAdornment={
-                  <InputAdornment position="end">
-                    <Icon aria-label="user name">{<Person />}</Icon>
-                  </InputAdornment>
-                }
-              />
-            </FormControl>
-          </div>
-          <div>
-            <FormControl sx={{ m: 1, width: '25ch' }} variant="standard">
-              <InputLabel htmlFor="standard-adornment-password">
-                Password
-              </InputLabel>
-              <Input
-                type={inputText.showPassword ? 'text' : 'password'}
-                value={inputText.password}
-                name="password"
-                onChange={handleChange}
-                endAdornment={
-                  <InputAdornment position="end">
-                    <IconButton
-                      aria-label="toggle password visibility"
-                      onClick={handleClickShowPassword}
-                    >
-                      {inputText.showPassword ? (
-                        <VisibilityOff />
-                      ) : (
-                        <Visibility />
-                      )}
-                    </IconButton>
-                  </InputAdornment>
-                }
-              />
-            </FormControl>
-          </div>
-          <div>
-            <Button
-              variant="contained"
-              className="register-button"
-              aria-label="register"
-              onClick={onRegister}
-            >
-              Register
-            </Button>
-            <Button
-              variant="contained"
-              className="login-button"
-              aria-label="login"
-              onClick={onLogin}
-            >
-              Login
-            </Button>
-          </div>
-        </Box>
-      ) : (
-        <PasswordManager savedPasswords={savedPasswords} />
-      )}
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          height: '100vh',
+        }}
+      >
+        {!isLoggedin ? (
+          <Box
+            sx={{
+              display: 'flex',
+              flexWrap: 'wrap',
+              flexDirection: 'column',
+              justifyContent: 'center',
+              alignItems: 'center',
+              backgroundColor: 'primary.dark',
+              marginTop: '-20px',
+              padding: '50px 30px',
+            }}
+          >
+            <div className="password-header">
+              <h1 className="password-title">PassLock</h1>
+              <Lock />
+            </div>
+            <div>
+              <FormControl sx={{ m: 1, width: '25ch' }} variant="standard">
+                <InputLabel htmlFor="standard-adornment-username">
+                  Username
+                </InputLabel>
+                <Input
+                  id="standard-adornment-username"
+                  type="text"
+                  value={inputText.username}
+                  name="username"
+                  onChange={handleChange}
+                  endAdornment={
+                    <InputAdornment position="end">
+                      <Icon aria-label="username">{<Person />}</Icon>
+                    </InputAdornment>
+                  }
+                />
+              </FormControl>
+            </div>
+            <div>
+              <FormControl sx={{ m: 1, width: '25ch' }} variant="standard">
+                <InputLabel htmlFor="standard-adornment-password">
+                  Password
+                </InputLabel>
+                <Input
+                  type={inputText.showPassword ? 'text' : 'password'}
+                  value={inputText.password}
+                  name="password"
+                  onChange={handleChange}
+                  endAdornment={
+                    <InputAdornment position="end">
+                      <IconButton
+                        aria-label="toggle password visibility"
+                        onClick={handleClickShowPassword}
+                      >
+                        {inputText.showPassword ? (
+                          <VisibilityOff />
+                        ) : (
+                          <Visibility />
+                        )}
+                      </IconButton>
+                    </InputAdornment>
+                  }
+                />
+              </FormControl>
+            </div>
+            <div className="login-buttons">
+              <Button
+                variant="contained"
+                className="register-button"
+                aria-label="register"
+                onClick={onRegister}
+              >
+                Register
+              </Button>
+              <Button
+                variant="contained"
+                className="login-button"
+                aria-label="login"
+                onClick={onLogin}
+              >
+                Login
+              </Button>
+            </div>
+          </Box>
+        ) : (
+          <PasswordManager
+            passwords={savedPasswords.passwords}
+            id={savedPasswords.id}
+          />
+        )}
+      </div>
     </>
   );
 }
