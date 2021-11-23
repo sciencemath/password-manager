@@ -107,7 +107,8 @@ const checkHasedPassword = (result, plainTextPassword, res) => {
         status: 'ok',
         response: {
           id: result[0].id, // this should get added automatically when creating a new user.
-          saved_passwords: result[0].saved_passwords,
+          passwords:
+            result[0].saved_passwords === null ? [] : result[0].saved_passwords, // decode
         },
       },
     });
@@ -120,24 +121,28 @@ const checkHasedPassword = (result, plainTextPassword, res) => {
  */
 app.put('/savepassword', (req, res) => {
   const { passwords, id } = req.body;
-  console.log('PASSWORDS', passwords);
-  console.log('id', id);
-  /**
-   * TODO: check if title exists
-   */
-  // db.query(
-  //   'UPDATE users SET saved_passwords = ? WHERE id = ?',
-  //   [password, id],
-  //   (error, result) => {
-  //     console.log('error', error);
-  //     console.log('result', result);
-  //     // if (!error) {
-  //     //   sendErrorResponse(error, res, 'There was a problem inserting data');
-  //     //   return;
-  //     // }
-  //     // res.send(JSON.stringify({ data: { status: 'ok' } }));
-  //   },
-  // );
+
+  const hashedPasswordArray = passwords.map((password) => {
+    hash(password.password, (error, hashedPassword) => {
+      return { title, password: hashedPassword };
+    });
+  });
+
+  console.log('hashedPasswordArray', hashedPasswordArray);
+
+  db.query(
+    'UPDATE users SET saved_passwords = ? WHERE id = ?',
+    [JSON.stringify(passwords), id],
+    (error, result) => {
+      console.log('error', error);
+      console.log('result', result);
+      // if (!error) {
+      //   sendErrorResponse(error, res, 'There was a problem inserting data');
+      //   return;
+      // }
+      // res.send(JSON.stringify({ data: { status: 'ok' } }));
+    },
+  );
 });
 /**
  *
