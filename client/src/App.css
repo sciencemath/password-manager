@@ -5,7 +5,8 @@
 }
 
 body {
-  background-color: #ccc;
+  /* background-color: #202124; */
+  background-color: #f7f7f7;
 }
 
 .wrapped-form {
@@ -32,9 +33,6 @@ body {
 .register-button {
   margin-top: 10px;
   width: 100px;
-  align-self: flex-end;
-  /* display: flex; */
-  /* flex-direction: row-reverse; */
 }
 
 .password-header {
@@ -51,4 +49,8 @@ body {
 
 .login-buttons {
   margin-top: 15px;
+}
+
+.login-buttons button:last-child {
+  margin-left: 20px;
 }

@@ -1,5 +1,4 @@
 import {
-  Box,
   Card,
   CardActions,
   CardContent,
@@ -14,14 +13,6 @@ export const PasswordCard = ({ title, password }) => {
   const [togglePassword, setTogglePassword] = useState(false);
 
   return (
-    // <Box
-    //   sx={{
-    //     display: 'flex',
-    //     flexWrap: 'wrap',
-    //     flexDirection: 'row',
-    //     alignItems: 'center',
-    //   }}
-    // >
     <Card variant="outlined">
       <CardContent>
         <Icon aria-label="passwordlock">
@@ -40,6 +31,5 @@ export const PasswordCard = ({ title, password }) => {
         </Button>
       </CardActions>
     </Card>
-    // </Box>
   );
 };

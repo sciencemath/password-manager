@@ -97,8 +97,6 @@ function App() {
       });
       const { data } = await response.json();
 
-      console.log(JSON.parse(data.response.passwords));
-
       /**
        * TODO: set localstorage
        */
@@ -131,9 +129,9 @@ function App() {
               flexDirection: 'column',
               justifyContent: 'center',
               alignItems: 'center',
-              backgroundColor: 'primary.dark',
+              backgroundColor: '#FFF',
               marginTop: '-20px',
-              padding: '50px 30px',
+              padding: '40px 100px',
             }}
           >
             <div className="password-header">
@@ -152,7 +150,10 @@ function App() {
                   name="username"
                   onChange={handleChange}
                   endAdornment={
-                    <InputAdornment position="end">
+                    <InputAdornment
+                      position="end"
+                      style={{ paddingRight: '5px' }}
+                    >
                       <Icon aria-label="username">{<Person />}</Icon>
                     </InputAdornment>
                   }
