@@ -1,7 +1,17 @@
 import { useEffect, useState } from 'react';
-import { FormControl, InputLabel, Input, Box, Button } from '@mui/material';
+import {
+  FormControl,
+  InputLabel,
+  Input,
+  Box,
+  Button,
+  Icon,
+} from '@mui/material';
+import { Create } from '@mui/icons-material';
 
-import { PasswordCard } from '../components/PasswordCard';
+import { PasswordCard } from '../components/PasswordCard/PasswordCard';
+
+import { FORM_STYLES } from '../constants/maps';
 
 /**
  * @param {number} id
@@ -77,15 +87,9 @@ const PasswordManager = ({ id, passwords: dbPasswords }) => {
 
   return (
     <>
-      <Box
-        sx={{
-          display: 'flex',
-          flexWrap: 'wrap',
-          flexDirection: 'column',
-          justifyContent: 'center',
-          alignItems: 'center',
-        }}
-      >
+      <Box sx={FORM_STYLES}>
+        <Icon>{Create}</Icon>
+        <h3>Create a new password</h3>
         <div>
           <FormControl sx={{ m: 1, width: '25ch' }} variant="standard">
             <InputLabel htmlFor="standard-adornment-title">Title</InputLabel>
@@ -123,12 +127,24 @@ const PasswordManager = ({ id, passwords: dbPasswords }) => {
         </div>
       </Box>
       {passwords.length > 0 && (
-        <ul>
-          {passwords.map((password) => (
-            // TODO: check if title is unique to remove the Math.random();
+        <ul
+          style={{
+            display: 'flex',
+            flexWrap: 'wrap',
+            marginTop: '50px',
+            listStyleType: 'none',
+            overflowY: 'auto',
+          }}
+        >
+          {passwords.map((password, index) => (
+            // TODO: check if title is unique to remove index;
             <li
-              key={password.title + Math.random()}
-              style={{ display: 'inline' }}
+              key={index}
+              style={{
+                minWidth: '200px',
+                marginLeft: '10px',
+                marginTop: '20px',
+              }}
             >
               <PasswordCard
                 title={password.title}

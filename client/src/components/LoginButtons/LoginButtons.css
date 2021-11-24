@@ -1,0 +1,12 @@
+.register-button {
+  margin-top: 10px;
+  width: 100px;
+}
+
+.login-buttons {
+  margin-top: 15px;
+}
+
+.login-buttons button:last-child {
+  margin-left: 20px;
+}

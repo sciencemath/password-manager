@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import {
   FormControl,
+  FormHelperText,
   InputLabel,
   Input,
   IconButton,
@@ -9,9 +10,13 @@ import {
   Button,
   Icon,
 } from '@mui/material';
-import { VisibilityOff, Visibility, Person, Lock } from '@mui/icons-material';
+import { VisibilityOff, Visibility, Person } from '@mui/icons-material';
+
+import { PasswordLogo, LoginButtons } from './components';
 
 import PasswordManager from './pages/PasswordManager';
+
+import { FORM_STYLES } from './constants/maps';
 
 import './App.css';
 
@@ -19,12 +24,15 @@ import './App.css';
  *
  * @returns JSX
  */
-function App() {
+const App = () => {
   const [inputText, setInputText] = useState({
-    password: '',
     username: '',
-    title: '',
+    password: '',
     showPassword: false,
+  });
+  const [errors, setErrors] = useState({
+    username: null,
+    password: null,
   });
   const [isLoggedin, setIsLoggedin] = useState(false);
   const [savedPasswords, setSavedPasswords] = useState({
@@ -54,6 +62,9 @@ function App() {
    *
    */
   const onRegister = async () => {
+    if (!validateFields()) {
+      return;
+    }
     const { username, password } = inputText;
     try {
       const response = await fetch('http://localhost:3001/register', {
@@ -81,8 +92,33 @@ function App() {
   };
   /**
    *
+   * @returns {boolen}
+   */
+  const validateFields = () => {
+    if (!inputText.username) {
+      setErrors({ username: 'Username cannot be blank' });
+      return false;
+    }
+
+    if (!inputText.password) {
+      setErrors({ password: 'Password cannot be blank' });
+      return false;
+    }
+
+    setErrors({
+      password: null,
+      username: null,
+    });
+
+    return true;
+  };
+  /**
+   *
    */
   const onLogin = async () => {
+    if (!validateFields()) {
+      return;
+    }
     const { username, password } = inputText;
     try {
       const response = await fetch('http://localhost:3001/login', {
@@ -113,32 +149,11 @@ function App() {
   };
   return (
     <>
-      <div
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          height: '100vh',
-        }}
-      >
-        {!isLoggedin ? (
-          <Box
-            sx={{
-              display: 'flex',
-              flexWrap: 'wrap',
-              flexDirection: 'column',
-              justifyContent: 'center',
-              alignItems: 'center',
-              backgroundColor: '#FFF',
-              marginTop: '-20px',
-              padding: '40px 100px',
-            }}
-          >
-            <div className="password-header">
-              <h1 className="password-title">PassLock</h1>
-              <Lock />
-            </div>
+      {!isLoggedin ? (
+        <div className="page-container">
+          <Box sx={FORM_STYLES}>
             <div>
+              <PasswordLogo />
               <FormControl sx={{ m: 1, width: '25ch' }} variant="standard">
                 <InputLabel htmlFor="standard-adornment-username">
                   Username
@@ -148,6 +163,7 @@ function App() {
                   type="text"
                   value={inputText.username}
                   name="username"
+                  error={errors.username}
                   onChange={handleChange}
                   endAdornment={
                     <InputAdornment
@@ -158,6 +174,11 @@ function App() {
                     </InputAdornment>
                   }
                 />
+                {errors.username && (
+                  <FormHelperText class="form-error-text">
+                    {errors.username}
+                  </FormHelperText>
+                )}
               </FormControl>
             </div>
             <div>
@@ -187,34 +208,17 @@ function App() {
                 />
               </FormControl>
             </div>
-            <div className="login-buttons">
-              <Button
-                variant="contained"
-                className="register-button"
-                aria-label="register"
-                onClick={onRegister}
-              >
-                Register
-              </Button>
-              <Button
-                variant="contained"
-                className="login-button"
-                aria-label="login"
-                onClick={onLogin}
-              >
-                Login
-              </Button>
-            </div>
+            <LoginButtons onRegister={onRegister} onLogin={onLogin} />
           </Box>
-        ) : (
-          <PasswordManager
-            passwords={savedPasswords.passwords}
-            id={savedPasswords.id}
-          />
-        )}
-      </div>
+        </div>
+      ) : (
+        <PasswordManager
+          passwords={savedPasswords.passwords}
+          id={savedPasswords.id}
+        />
+      )}
     </>
   );
-}
+};
 
 export default App;
