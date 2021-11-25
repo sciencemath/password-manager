@@ -38,10 +38,9 @@ app.post('/register', (req, res) => {
       'SELECT * FROM users WHERE username = ?',
       username,
       (error, result) => {
-        console.log(result, error);
-        if (result[0].length) {
-          throw new Error('user already exists');
-          res.end();
+        console.log('first1', result, error);
+        if (result && Array.isArray(result) && result.length) {
+          sendErrorResponse(error, res, 'User already exists');
         }
       },
     );
@@ -50,7 +49,8 @@ app.post('/register', (req, res) => {
       'INSERT INTO users (password, username) VALUES (?,?)',
       [hashedPassword, username],
       (error, result) => {
-        if (!error) {
+        console.log('second2', result, error);
+        if (error) {
           sendErrorResponse(error, res, 'There was a problem inserting data');
           return;
         }
@@ -102,20 +102,18 @@ const checkHasedPassword = (result, plainTextPassword, res) => {
      * lets just make it simple, and add a column to the users table
      * labeled saved passwords.
      */
-    res.send(
-      JSON.stringify({
-        data: {
-          status: 'ok',
-          response: {
-            id: result[0].id, // this should get added automatically when creating a new user.
-            passwords:
-              result[0].saved_passwords === null
-                ? '[]'
-                : result[0].saved_passwords, // decode
-          },
+    res.send({
+      data: {
+        status: 'ok',
+        response: {
+          id: result[0].id, // this should get added automatically when creating a new user.
+          passwords:
+            result[0].saved_passwords === null
+              ? '[]'
+              : result[0].saved_passwords, // decode
         },
-      }),
-    );
+      },
+    });
   });
 };
 /**

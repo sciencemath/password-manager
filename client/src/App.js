@@ -1,24 +1,11 @@
 import { useState } from 'react';
-import {
-  FormControl,
-  FormHelperText,
-  InputLabel,
-  Input,
-  IconButton,
-  InputAdornment,
-  Box,
-  Button,
-  Icon,
-} from '@mui/material';
-import { VisibilityOff, Visibility, Person } from '@mui/icons-material';
 
-import { PasswordLogo, LoginButtons } from './components';
-
+import AuthLogin from './pages/AuthLogin';
 import PasswordManager from './pages/PasswordManager';
 
-import { FORM_STYLES } from './constants/maps';
+import { onAuthLogin, onRegisterUser } from './api/Auth';
 
-import './App.css';
+import './css/Global.css';
 
 /**
  *
@@ -33,7 +20,9 @@ const App = () => {
   const [errors, setErrors] = useState({
     username: null,
     password: null,
+    register: null,
   });
+  const [sucessfulRegister, setSucessfulRegister] = useState(false);
   const [isLoggedin, setIsLoggedin] = useState(false);
   const [savedPasswords, setSavedPasswords] = useState({
     id: 0,
@@ -43,7 +32,7 @@ const App = () => {
    *
    * @param {{}} event
    */
-  const handleChange = (event) => {
+  const onInputChange = (event) => {
     setInputText({
       ...inputText,
       [event.target.name]: event.target.value,
@@ -52,43 +41,11 @@ const App = () => {
   /**
    *
    */
-  const handleClickShowPassword = () => {
-    setInputText({
-      ...inputText,
-      showPassword: !inputText.showPassword,
+  const resetErrors = () => {
+    setErrors({
+      password: null,
+      username: null,
     });
-  };
-  /**
-   *
-   */
-  const onRegister = async () => {
-    if (!validateFields()) {
-      return;
-    }
-    const { username, password } = inputText;
-    try {
-      const response = await fetch('http://localhost:3001/register', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          username,
-          password,
-        }),
-      });
-      const { data } = await response.json();
-
-      // if (status === 'error') {
-      //   throw new Error('You have recieved an error Registering');
-      // }
-      /**
-       * TODO load the <PasswordManagement />
-       */
-      // user successfully logged in
-    } catch (error) {
-      console.error(`You have recieved an error Registering ${error}`);
-    }
   };
   /**
    *
@@ -96,20 +53,16 @@ const App = () => {
    */
   const validateFields = () => {
     if (!inputText.username) {
-      setErrors({ username: 'Username cannot be blank' });
+      setErrors({ ...errors, username: 'Username cannot be blank' });
       return false;
     }
 
     if (!inputText.password) {
-      setErrors({ password: 'Password cannot be blank' });
+      setErrors({ ...errors, password: 'Password cannot be blank' });
       return false;
     }
 
-    setErrors({
-      password: null,
-      username: null,
-    });
-
+    resetErrors();
     return true;
   };
   /**
@@ -119,98 +72,56 @@ const App = () => {
     if (!validateFields()) {
       return;
     }
-    const { username, password } = inputText;
-    try {
-      const response = await fetch('http://localhost:3001/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          username,
-          password,
-        }),
-      });
-      const { data } = await response.json();
 
-      /**
-       * TODO: set localstorage
-       */
-      if (data?.status === 'ok') {
-        setSavedPasswords({
-          id: data.response.id,
-          passwords: JSON.parse(data.response.passwords),
-        });
-        setIsLoggedin(true);
-      }
-    } catch (error) {
-      console.error(`You have recieved an error logging in ${error}`);
+    const data = await onAuthLogin(inputText);
+
+    if (!data) {
+      // Show error.
+    }
+
+    /**
+     * TODO: set localstorage
+     */
+    if (data?.status === 'ok') {
+      setSavedPasswords({
+        id: data.response.id,
+        passwords: JSON.parse(data.response.passwords),
+      });
+      setIsLoggedin(true);
+    }
+  };
+  /**
+   *
+   */
+  const onRegister = async () => {
+    if (!validateFields()) {
+      return;
+    }
+
+    const data = await onRegisterUser(inputText);
+
+    if (data?.status === 'ok') {
+      setSucessfulRegister(true);
+      setInputText({
+        username: '',
+        password: '',
+      });
     }
   };
   return (
     <>
       {!isLoggedin ? (
-        <div className="page-container">
-          <Box sx={FORM_STYLES}>
-            <div>
-              <PasswordLogo />
-              <FormControl sx={{ m: 1, width: '25ch' }} variant="standard">
-                <InputLabel htmlFor="standard-adornment-username">
-                  Username
-                </InputLabel>
-                <Input
-                  id="standard-adornment-username"
-                  type="text"
-                  value={inputText.username}
-                  name="username"
-                  error={errors.username}
-                  onChange={handleChange}
-                  endAdornment={
-                    <InputAdornment
-                      position="end"
-                      style={{ paddingRight: '5px' }}
-                    >
-                      <Icon aria-label="username">{<Person />}</Icon>
-                    </InputAdornment>
-                  }
-                />
-                {errors.username && (
-                  <FormHelperText class="form-error-text">
-                    {errors.username}
-                  </FormHelperText>
-                )}
-              </FormControl>
-            </div>
-            <div>
-              <FormControl sx={{ m: 1, width: '25ch' }} variant="standard">
-                <InputLabel htmlFor="standard-adornment-password">
-                  Password
-                </InputLabel>
-                <Input
-                  type={inputText.showPassword ? 'text' : 'password'}
-                  value={inputText.password}
-                  name="password"
-                  onChange={handleChange}
-                  endAdornment={
-                    <InputAdornment position="end">
-                      <IconButton
-                        aria-label="toggle password visibility"
-                        onClick={handleClickShowPassword}
-                      >
-                        {inputText.showPassword ? (
-                          <VisibilityOff />
-                        ) : (
-                          <Visibility />
-                        )}
-                      </IconButton>
-                    </InputAdornment>
-                  }
-                />
-              </FormControl>
-            </div>
-            <LoginButtons onRegister={onRegister} onLogin={onLogin} />
-          </Box>
-        </div>
+        <AuthLogin
+          {...{
+            inputText,
+            setInputText,
+            errors,
+            onInputChange,
+            onLogin,
+            onRegister,
+            sucessfulRegister,
+          }}
+        />
       ) : (
         <PasswordManager
           passwords={savedPasswords.passwords}
