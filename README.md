@@ -6,6 +6,7 @@ Client and Server are setup in different folders.\
 Make sure to `npm i` in both folders to install all packages needed.
 
 Have MySQL installed locally and execute the commands listed in `db.sql` file.\
+[database setup commands](https://github.com/sciencemath/password-manager/blob/master/db.sql)
 
 Copy the `.env.example` file in the server folder and make your own `.env` file,\
 fill out the necessary values needed for your environment. [see here](https://github.com/sciencemath/password-manager/blob/master/server/.env)\
