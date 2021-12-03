@@ -21,3 +21,5 @@ MYSQL_PASSWORD=password
 
 it will be different for your environment, and if you followed the steps above\
 this env variable will be the same: `MYSQL_DATABASE=passwordmanagement`
+
+Finally run `npm start` in the `./client` directory and `npm start` in the `./server` directory.
